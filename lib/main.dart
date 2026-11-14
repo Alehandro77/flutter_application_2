@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'cubit/notes_cubit.dart';
+import 'cubit/notes_state.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,113 +16,69 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: Scaffold(        
-        body: MyAppWidget(),
+      home: BlocProvider(
+        create: (_) => NotesCubit(),
+        child: const Scaffold(
+          body: MyAppWidget(),
+        ),
       ),
     );
   }
 }
 
-class MyAppWidget extends StatefulWidget {
+class MyAppWidget extends StatelessWidget {
   const MyAppWidget({super.key});
 
   @override
-  _MyAppWidgetState createState() => _MyAppWidgetState();
-}
-
-class _MyAppWidgetState extends State<MyAppWidget> {
-  final TextEditingController _controller = TextEditingController();
-  String _text = '';
-  final List<String> _notes = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _controller.addListener(_updateText);
-  }
-
-  @override
-  void dispose() {
-    _controller.removeListener(_updateText);
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _clearText() {
-    _controller.clear();
-  }
-
-  void _updateText() {
-    setState(() {
-      _text = _controller.text;
-    });
-  }
-
-  void _addNote() {
-    if (_text.isEmpty) return;
-    setState(() {
-      _notes.add(_text);
-      _clearText();
-    });
-  }
-
-  void _editNote(int index) {
-    setState(() {
-      _controller.text = _notes[index];
-      _notes.removeAt(index);
-    });
-  }
-
-  void _deleteNote(int index) {
-    setState(() {
-      _notes.removeAt(index);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TextField(
-          controller: _controller,
-          decoration: InputDecoration(
-            hintText: 'Введите заметку',
-          ),
-        ),
-        ElevatedButton(
-          onPressed: _clearText,
-          child: Text('Отчистить текст'),
-        ),
-        SizedBox(height: 16),
-        ElevatedButton(
-          onPressed: _addNote,
-          child: Text('Сохранить'),
-        ),
-        SizedBox(height: 16),
-        Expanded(     
-          child: ListView.builder(
-            itemCount: _notes.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(_notes[index]),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.edit),
-                      onPressed: () => _editNote(index),
+    return BlocBuilder<NotesCubit, NotesState>(
+      builder: (context, state) {
+        final cubit = context.read<NotesCubit>();
+
+        return Column(
+          children: [
+            TextField(
+              controller: cubit.controller,
+              decoration: const InputDecoration(
+                hintText: 'Введите заметку',
+              ),
+            ),
+            ElevatedButton(
+              onPressed: cubit.clearText,
+              child: const Text('Отчистить текст'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: cubit.addNote,
+              child: const Text('Сохранить'),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.builder(
+                itemCount: state.notes.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(state.notes[index]),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () => cubit.editNote(index),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () => cubit.deleteNote(index),
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: () => _deleteNote(index),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        )
-      ],
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
