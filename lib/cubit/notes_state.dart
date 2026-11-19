@@ -1,12 +1,15 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_application_2/model/note_model.dart';
 
-@immutable
 class NotesState {
-  final String text;
-  final List<String> notes;
+  final List<NoteModel> notes;
+  final bool isLoading;
 
-  const NotesState({
-    this.text = '',
-    this.notes = const [],
-  });
+  const NotesState({this.notes = const [], this.isLoading = false});
+
+  NotesState copyWith({List<NoteModel>? notes, bool? isLoading}) {
+    return NotesState(
+      notes: notes ?? this.notes,
+      isLoading: isLoading ?? this.isLoading,
+    );
+  }
 }

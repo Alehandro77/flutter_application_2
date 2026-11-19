@@ -1,53 +1,38 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_application_2/cubit/notes_state.dart';
+import 'package:flutter_application_2/model/note_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'notes_state.dart';
+import 'package:uuid/uuid.dart';
 
 class NotesCubit extends Cubit<NotesState> {
-  NotesCubit() : super(const NotesState()) {
-    _controller.addListener(_updateText);
+  NotesCubit() : super(const NotesState());
+
+  final _uuid = const Uuid();
+
+  void addNote(String title, String content) {
+    if (title.isEmpty || content.isEmpty) {
+      return;
+    }
+    final note = NoteModel(id: _uuid.v4(), title: title, content: content);
+
+    emit(state.copyWith(notes: [...state.notes, note]));
   }
 
-  final TextEditingController _controller = TextEditingController();
-  String _text = '';
-  final List<String> _notes = [];
-
-  TextEditingController get controller => _controller;
-
-  void _clearText() {
-    _controller.clear();
+  void deleteNote(String id) {
+    final updatedNotes = state.notes.where((note) => note.id != id).toList();
+    emit(state.copyWith(notes: updatedNotes));
   }
 
-  void _updateText() {
-    _text = _controller.text;
-    emit(NotesState(text: _text, notes: _notes));
+  void updateNote(NoteModel note) {
+    final updatedNotes = state.notes
+        .map((n) => n.id == note.id ? note : n)
+        .toList();
+    emit(state.copyWith(notes: updatedNotes));
   }
 
-  void clearText() {
-    _clearText();
-  }
-
-  void addNote() {
-    if (_text.isEmpty) return;
-    _notes.add(_text);
-    _clearText();
-    emit(NotesState(text: _text, notes: _notes));
-  }
-
-  void editNote(int index) {
-    _controller.text = _notes[index];
-    _notes.removeAt(index);
-    emit(NotesState(text: _text, notes: _notes));
-  }
-
-  void deleteNote(int index) {
-    _notes.removeAt(index);
-    emit(NotesState(text: _text, notes: _notes));
-  }
-
-  @override
-  Future<void> close() {
-    _controller.removeListener(_updateText);
-    _controller.dispose();
-    return super.close();
+  void toggleImportance(String id) {
+    final updatedNotes = state.notes
+        .map((n) => n.id == id ? n.copyWith(important: !n.important) : n)
+        .toList();
+    emit(state.copyWith(notes: updatedNotes));
   }
 }
