@@ -31,7 +31,13 @@ class NotesCubit extends Cubit<NotesState> {
 
   void toggleImportance(String id) {
     final updatedNotes = state.notes
-        .map((n) => n.id == id ? n.copyWith(important: !n.important) : n)
+        .map((n) => n.id == id ? n.copyWith(important: true) : n)
+        .toList();
+    emit(state.copyWith(notes: updatedNotes));
+  }
+  void toggleNotImportance(String id) {
+    final updatedNotes = state.notes
+        .map((n) => n.id == id ? n.copyWith(important: false) : n)
         .toList();
     emit(state.copyWith(notes: updatedNotes));
   }

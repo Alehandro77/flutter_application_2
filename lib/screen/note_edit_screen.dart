@@ -68,19 +68,19 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
               decoration: const InputDecoration(labelText: 'Содержание'),
               maxLines: null,
             ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: TextField(
-                controller: _contentController,
-                maxLines: null,
-                expands: true,
-                textAlignVertical: TextAlignVertical.top,
-                decoration: const InputDecoration(
-                  hintText: 'Содержание',
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
+            // const SizedBox(height: 16),
+            // Expanded(
+            //   child: TextField(
+            //     controller: _contentController,
+            //     maxLines: null,
+            //     expands: true,
+            //     textAlignVertical: TextAlignVertical.top,
+            //     decoration: const InputDecoration(
+            //       hintText: 'Содержание',
+            //       border: InputBorder.none,
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
